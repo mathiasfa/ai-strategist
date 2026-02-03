@@ -92,7 +92,13 @@ if st.button("Lancer l'Analyse Stratégique"):
                 
                 data = json.loads(raw_content)
                 
-                # ... la suite de ton code d'affichage (st.success, etc.) ...
+                # Affichage des résultats
+                st.success("Analyse terminée !")
+                st.markdown(f"### 📝 Synthèse\n{data['synthese']}")
+                
+                st.markdown("### 📊 Plan d'Action")
+                df = pd.DataFrame(data["actions"])
+                st.table(df)
                 
                 # EXPORTS PREMIUM
                 if status == "Premium":
@@ -113,4 +119,5 @@ if st.button("Lancer l'Analyse Stratégique"):
 # Gestion Compte
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"[Gérer mon abonnement](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
+
 
