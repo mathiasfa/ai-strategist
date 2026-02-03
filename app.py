@@ -6,10 +6,6 @@ import pandas as pd
 import io
 from fpdf import FPDF
 
-# 1. On initialise la mémoire au début du script (juste après le titre)
-if 'analyse_result' not in st.session_state:
-    st.session_state['analyse_result'] = None
-    
 # 1. CONFIGURATION
 st.set_page_config(page_title="Strategist AI Pro", page_icon="🚀", layout="wide")
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -143,29 +139,10 @@ if st.button("Lancer l'Analyse Stratégique"):
         # À la fin, au lieu de juste afficher, on enregistre dans la mémoire :
         st.session_state['analyse_result'] = data 
 
-# 2. On affiche le résultat si la mémoire n'est pas vide
-if st.session_state['analyse_result'] is not None:
-    data = st.session_state['analyse_result']
-    
-    st.success("Analyse terminée !")
-    st.markdown(f"### 📝 Synthèse\n{data['synthese']}")
-    
-    df = pd.DataFrame(data["actions"])
-    st.table(df)
-    
-    # Tes boutons d'exports restent ici, ils ne disparaîtront plus !
-    if status == "Premium":
-        st.divider()
-        col1, col2 = st.columns(2)
-        with col1:
-            pdf_data = create_pdf(data)
-            st.download_button("📥 Télécharger PDF", pdf_data, "rapport.pdf", "application/pdf")
-        with col2:
-            excel_data = create_excel(data["actions"])
-            st.download_button("📊 Télécharger Excel", excel_data, "plan.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 # Gestion Compte
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"[Gérer mon abonnement](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
+
 
 
 
