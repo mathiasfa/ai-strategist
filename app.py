@@ -60,11 +60,26 @@ if st.button("Lancer l'Analyse"):
         else:
             text_to_process = user_input
 
-        with st.spinner("Analyse en cours..."):
+     with st.spinner("Analyse stratégique en cours..."):
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
-                messages=[{"role": "system", "content": "Expert en stratégie. Produis une synthèse exécutive et un plan d'action structuré."},
-                          {"role": "user", "content": text_to_process}]
+                messages=[
+                    {"role": "system", "content": """Tu es un expert en stratégie et gestion de projet. 
+                    Ton rôle est de transformer une transcription de réunion en un plan d'action ultra-structuré.
+                    
+                    Tu dois impérativement générer :
+                    1. Une synthèse exécutive (3 phrases max).
+                    2. Un tableau de bord avec les colonnes suivantes : 
+                       - Action à mener
+                       - Responsable (si mentionné)
+                       - Délai estimé
+                       - KPI (Indicateur de réussite)
+                    3. Une liste des 3 risques principaux identifiés.
+                    4. Une recommandation stratégique pour la suite.
+                    
+                    Sois précis, professionnel et direct."""},
+                    {"role": "user", "content": text_to_process}
+                ]
             )
             result = response.choices[0].message.content
             st.markdown(result)
@@ -81,6 +96,7 @@ if st.button("Lancer l'Analyse"):
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"[Gérer mon abonnement](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
+
 
 
 
