@@ -17,16 +17,17 @@ def create_pdf(text):
     pdf.add_page()
     pdf.set_font("Arial", size=12)
     
-    # Nettoyage des caractères problématiques
-    text = text.replace('œ', 'oe').replace('Œ', 'OE').replace('’', "'")
+    # Nettoyage des caractères spéciaux pour éviter les crashs (œ, ’ , etc.)
+    text = text.replace('œ', 'oe').replace('Œ', 'OE').replace('’', "'").replace('–', '-')
     
-    # Encodage propre pour le PDF
+    # Encodage sécurisé pour le format PDF standard
     clean_text = text.encode('latin-1', 'replace').decode('latin-1')
     
     pdf.multi_cell(0, 10, txt=clean_text)
     
-    # On force la conversion du bytearray en bytes pour Streamlit
-    return bytes(pdf.output())
+    # Conversion CRUCIALE : bytearray -> bytes pour Streamlit
+    pdf_output = pdf.output()
+    return bytes(pdf_output)
 
 # --- SIDEBAR ---
 st.sidebar.title("🔐 Accès Strategist AI")
@@ -80,6 +81,7 @@ if st.button("Lancer l'Analyse"):
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"[Gérer mon abonnement](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
+
 
 
 
