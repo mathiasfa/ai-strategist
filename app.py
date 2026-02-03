@@ -17,13 +17,15 @@ def create_pdf(text):
     pdf.add_page()
     pdf.set_font("Arial", size=12)
     
-    # On utilise encode('latin-1', 'replace').decode('latin-1') 
-    # pour éviter les crashs sur les caractères bizarres
+    # ÉTAPE DE NETTOYAGE RADICAL :
+    # 1. On remplace les caractères spéciaux chiants manuellement
+    text = text.replace('œ', 'oe').replace('Œ', 'OE').replace('’', "'")
+    
+    # 2. On encode en latin-1 en ignorant ce qui ne passe pas, 
+    # puis on redécode pour avoir un texte "propre" pour le PDF
     clean_text = text.encode('latin-1', 'replace').decode('latin-1')
     
     pdf.multi_cell(0, 10, txt=clean_text)
-    
-    # Avec fpdf2, output() sans argument renvoie directement les bytes
     return pdf.output()
 
 # --- SIDEBAR ---
@@ -78,5 +80,6 @@ if st.button("Lancer l'Analyse"):
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"[Gérer mon abonnement](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
+
 
 
