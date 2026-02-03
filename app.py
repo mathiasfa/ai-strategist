@@ -78,7 +78,7 @@ if st.button("Générer l'Analyse Stratégique"):
                     st.markdown("### 💎 Débloque l'analyse complète")
                     st.write("Pour traiter des réunions entières et obtenir le tableau de bord complet, passe à la version Pro.")
                     # LIEN STRIPE
-                    st.markdown('[<button style="width:100%; height:50px; border-radius:10px; background-color:#6772E5; color:white; border:none; cursor:pointer; font-weight:bold;">S\'abonner pour 19€/mois</button>](https://buy.stripe.com/aFafZg6mq35D9re8xncZa00)', unsafe_allow_html=True)
+                    st.markdown('[<button style="width:100%; height:50px; border-radius:10px; background-color:#6772E5; color:white; border:none; cursor:pointer; font-weight:bold;">S\'abonner pour 5€/mois</button>](https://buy.stripe.com/aFafZg6mq35D9re8xncZa00)', unsafe_allow_html=True)
         
         except Exception as e:
             st.error(f"Une erreur est survenue : {e}")
@@ -90,4 +90,5 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("### ⚙️ Gestion Compte")
 # Remplace 'URL_DE_TON_PORTAIL_STRIPE' par le lien que Stripe t'a donné
 st.sidebar.markdown("[Gérer mon abonnement / Annuler](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
+
 
