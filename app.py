@@ -17,16 +17,16 @@ def create_pdf(text):
     pdf.add_page()
     pdf.set_font("Arial", size=12)
     
-    # ÉTAPE DE NETTOYAGE RADICAL :
-    # 1. On remplace les caractères spéciaux chiants manuellement
+    # Nettoyage des caractères problématiques
     text = text.replace('œ', 'oe').replace('Œ', 'OE').replace('’', "'")
     
-    # 2. On encode en latin-1 en ignorant ce qui ne passe pas, 
-    # puis on redécode pour avoir un texte "propre" pour le PDF
+    # Encodage propre pour le PDF
     clean_text = text.encode('latin-1', 'replace').decode('latin-1')
     
     pdf.multi_cell(0, 10, txt=clean_text)
-    return pdf.output()
+    
+    # On force la conversion du bytearray en bytes pour Streamlit
+    return bytes(pdf.output())
 
 # --- SIDEBAR ---
 st.sidebar.title("🔐 Accès Strategist AI")
@@ -80,6 +80,7 @@ if st.button("Lancer l'Analyse"):
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"[Gérer mon abonnement](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
+
 
 
 
