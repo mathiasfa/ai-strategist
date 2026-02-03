@@ -9,7 +9,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # 2. Codes d'accès (à configurer dans Railway)
 CODE_PRO = os.getenv("APP_ACCESS_CODE", "palaiseau2026")
-CODE_PREMIUM = os.getenv("APP_PREMIUM_CODE", "palaiseau-pro")
+CODE_PREMIUM = os.getenv("APP_PREMIUM_CODE", "palaiseaupro")
 
 # --- FONCTION PDF ---
 def create_pdf(text):
@@ -71,3 +71,4 @@ if st.button("Lancer l'Analyse"):
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"[Gérer mon abonnement](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
+
