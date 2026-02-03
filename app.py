@@ -15,25 +15,12 @@ CODE_PRO = os.getenv("APP_ACCESS_CODE", "palaiseau2026")
 CODE_PREMIUM = os.getenv("APP_PREMIUM_CODE", "palaiseaupro")
 
 # 2. FONCTIONS DE GÉNÉRATION
-def create_pdf(data):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", 'B', size=16)
-    pdf.cell(200, 10, txt="Rapport Strategist AI Pro", ln=True, align='C')
-    
-    pdf.set_font("Arial", size=12)
-    pdf.ln(10)
-    pdf.multi_cell(0, 10, txt=f"SYNTHÈSE :\n{data['synthese']}".encode('latin-1', 'replace').decode('latin-1'))
-    
-    pdf.ln(5)
-    pdf.set_font("Arial", 'B', size=12)
-    pdf.cell(0, 10, txt="PLAN D'ACTION :", ln=True)
-    pdf.set_font("Arial", size=10)
-    for action in data['actions']:
-        line = f"- {action['Action']} (Responsable: {action['Responsable']}, Délai: {action['Delai']})"
-        pdf.multi_cell(0, 8, txt=line.encode('latin-1', 'replace').decode('latin-1'))
-    
-    return bytes(pdf.output())
+def create_excel(actions_list):
+    output = io.BytesIO()
+    df_actions = pd.DataFrame(actions_list)
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df_actions.to_excel(writer, index=False, sheet_name='Plan d Action')
+    return output.getvalue()
 
 def create_pdf(data):
     pdf = FPDF()
@@ -150,6 +137,7 @@ if st.button("Lancer l'Analyse Stratégique"):
 # Gestion Compte
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"[Gérer mon abonnement](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
+
 
 
 
