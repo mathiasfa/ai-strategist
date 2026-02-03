@@ -9,7 +9,7 @@ st.set_page_config(page_title="Strategist AI", page_icon="🚀", layout="wide")
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # 3. Configuration du Code d'accès
-MASTER_CODE = "palaiseau2026"
+MASTER_CODE = os.getenv("APP_ACCESS_CODE", "palaiseau2026")
 
 # Style CSS pour un rendu pro et épuré
 st.markdown("""
@@ -85,3 +85,4 @@ if st.button("Générer l'Analyse Stratégique"):
 
 st.markdown("---")
 st.caption("Strategist AI - Solution de pilotage autonome")
+
