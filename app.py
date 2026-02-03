@@ -85,4 +85,9 @@ if st.button("Générer l'Analyse Stratégique"):
 
 st.markdown("---")
 st.caption("Strategist AI - Solution de pilotage autonome")
+# --- AJOUT DANS LA SIDEBAR ---
+st.sidebar.markdown("---")
+st.sidebar.markdown("### ⚙️ Gestion Compte")
+# Remplace 'URL_DE_TON_PORTAIL_STRIPE' par le lien que Stripe t'a donné
+st.sidebar.markdown("[Gérer mon abonnement / Annuler](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
 
