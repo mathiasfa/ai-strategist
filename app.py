@@ -78,27 +78,21 @@ if st.button("Lancer l'Analyse Stratégique"):
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=[
-                        {"role": "system", "content": """Tu es un expert en stratégie. 
-                        Réponds UNIQUEMENT en format JSON :
-                        {
-                          "synthese": "Texte court",
-                          "actions": [{"Action": "...", "Responsable": "...", "Delai": "...", "KPI": "..."}],
-                          "risques": ["...", "..."],
-                          "recommandation": "..."
-                        }"""},
-                        {"role": "user", "content": text_to_process}
-                    ]
+                        {"role": "system", "content": "Tu es un expert en stratégie. Tu réponds EXCLUSIVEMENT par un objet JSON sans aucun texte avant ou après."},
+                        {"role": "user", "content": f"Analyse cette réunion et fournis un JSON avec les clés 'synthese', 'actions', 'risques' et 'recommandation'. Les 'actions' doivent être une liste d'objets avec 'Action', 'Responsable', 'Delai', 'KPI'. Voici le texte : {text_to_process}"}
+                    ],
+                    temperature=0 # On met la température à 0 pour qu'elle soit plus stricte
                 )
                 
-                data = json.loads(response.choices[0].message.content)
+                raw_content = response.choices[0].message.content.strip()
                 
-                # Affichage des résultats
-                st.success("Analyse terminée !")
-                st.markdown(f"### 📝 Synthèse\n{data['synthese']}")
+                # Petit hack pour nettoyer si l'IA met des balises ```json ... ```
+                if raw_content.startswith("```json"):
+                    raw_content = raw_content.replace("```json", "").replace("```", "").strip()
                 
-                st.markdown("### 📊 Plan d'Action")
-                df = pd.DataFrame(data["actions"])
-                st.table(df)
+                data = json.loads(raw_content)
+                
+                # ... la suite de ton code d'affichage (st.success, etc.) ...
                 
                 # EXPORTS PREMIUM
                 if status == "Premium":
@@ -119,3 +113,4 @@ if st.button("Lancer l'Analyse Stratégique"):
 # Gestion Compte
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"[Gérer mon abonnement](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
+
