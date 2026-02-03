@@ -14,7 +14,7 @@ st.markdown("""
     .main { text-align: center; }
     .stButton>button { width: 100%; border-radius: 20px; height: 3em; background-color: #00ff88; color: black; font-weight: bold; }
     </style>
-    """, unsafe_allow_safe=True)
+    """, unsafe_allow_html=True)
 
 st.title("🚀 Strategist AI")
 st.subheader("Transforme tes réunions en plans d'action")
@@ -55,10 +55,11 @@ if st.button("Générer le Plan d'Action"):
                     st.markdown("### 💎 Débloque la puissance totale")
                     st.write("Pour analyser des réunions complètes sans limite, passe à la version Pro.")
                     # Remplace par ton vrai lien de paiement Stripe ci-dessous
-                    st.markdown('[<button style="width:100%; height:50px; border-radius:10px; background-color:#6772E5; color:white; border:none; cursor:pointer; font-weight:bold;">S\'abonner pour 19€/mois</button>](https://buy.stripe.com/aFafZg6mq35D9re8xncZa00)', unsafe_allow_safe=True)
+                    st.markdown('[<button style="width:100%; height:50px; border-radius:10px; background-color:#6772E5; color:white; border:none; cursor:pointer; font-weight:bold;">S\'abonner pour 19€/mois</button>](https://buy.stripe.com/aFafZg6mq35D9re8xncZa00)', unsafe_allow_html=True)
         
         except Exception as e:
             st.error(f"Une erreur est survenue avec l'IA : {e}")
 
 st.markdown("---")
 st.caption("Propulsé par Strategist AI - Mathias")
+
