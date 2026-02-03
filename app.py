@@ -58,7 +58,7 @@ if st.button("Générer le Plan d'Action"):
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=[
-                        {"role": "system", "content": "Tu es un expert en stratégie. Fais un résumé, liste les décisions et crée une To-Do list avec responsables."},
+                        {"role": "system", "content": "Tu es un expert en stratégie. Fais un résumé de ce compte rendu de réunion, liste les décisions et crée une To-Do list avec responsables."},
                         {"role": "user", "content": text_to_process}
                     ]
                 )
@@ -73,10 +73,11 @@ if st.button("Générer le Plan d'Action"):
                     st.markdown("### 💎 Débloque la version illimitée")
                     st.write("Obtiens ton code d'accès instantanément après paiement.")
                     # REMPLACE PAR TON LIEN STRIPE CI-DESSOUS
-                    st.markdown('[<button style="width:100%; height:50px; border-radius:10px; background-color:#6772E5; color:white; border:none; cursor:pointer; font-weight:bold;">S\'abonner pour 19€/mois</button>](https://buy.stripe.com/ton_lien_stripe)', unsafe_allow_html=True)
+                    st.markdown('[<button style="width:100%; height:50px; border-radius:10px; background-color:#6772E5; color:white; border:none; cursor:pointer; font-weight:bold;">S\'abonner pour 19€/mois</button>](https://buy.stripe.com/aFafZg6mq35D9re8xncZa00)', unsafe_allow_html=True)
         
         except Exception as e:
             st.error(f"Erreur : {e}")
 
 st.markdown("---")
-st.caption("Propulsé par Strategist AI - Mathias @ IdVerde")
+st.caption("Propulsé par Strategist AI - Mathias")
+
