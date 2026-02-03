@@ -1,3 +1,5 @@
 streamlit
 openai==0.28
 fpdf2
+pandas
+openpyxl
