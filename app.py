@@ -60,7 +60,7 @@ if st.button("Lancer l'Analyse"):
         else:
             text_to_process = user_input
 
-     with st.spinner("Analyse stratégique en cours..."):
+        with st.spinner("Analyse stratégique en cours..."):
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=[
@@ -96,6 +96,7 @@ if st.button("Lancer l'Analyse"):
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"[Gérer mon abonnement](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
+
 
 
 
