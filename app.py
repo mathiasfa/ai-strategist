@@ -58,11 +58,10 @@ if st.button("Générer le Plan d'Action"):
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=[
-                        {"role": "system", "content": "Tu es un expert en stratégie. Fais un résumé de ce compte rendu de réunion, liste les décisions et crée une To-Do list avec responsables."},
+                        {"role": "system", "content": "Tu es un expert en stratégie et pilotage de projets ; à partir du compte rendu de réunion fourni, produis une synthèse exécutive courte (objectifs, décisions, points clés, risques), puis un plan d’action clair et opérationnel sous forme de tableau incluant actions concrètes, responsables, délais, priorités, KPI et statut, ajoute les points de vigilance, risques et dépendances, puis des recommandations stratégiques et prochaines étapes, sans inventer d’informations manquantes et avec un langage professionnel, structuré et orienté décision."
                         {"role": "user", "content": text_to_process}
                     ]
                 )
-                
                 result = response.choices[0].message.content
                 st.markdown("### ✅ Ton Plan d'Action :")
                 st.write(result)
@@ -80,4 +79,5 @@ if st.button("Générer le Plan d'Action"):
 
 st.markdown("---")
 st.caption("Propulsé par Strategist AI - Mathias")
+
 
