@@ -30,24 +30,43 @@ def create_excel(actions_list):
         df.to_excel(writer, index=False, sheet_name='Plan d Action')
     return output.getvalue()
 
-# 3. SIDEBAR & STATUT (FIX VISIBILITÉ)
+# 3. SIDEBAR & ACCÈS (AVEC MANAGEMENT VISUEL)
 st.sidebar.title("🔐 Accès Strategist AI")
 user_code = st.sidebar.text_input("Entre ton code d'accès :", type="password", key="access_pwd")
 
-status = "Gratuit"
+# Logique de Badge Visuel
 if user_code == CODE_PREMIUM:
     status = "Premium"
-    st.sidebar.success("💎 COMPTE PREMIUM ACTIVÉ")
+    st.sidebar.markdown("""
+        <div style="background-color:#1f497d; padding:15px; border-radius:10px; border:2px solid #ffd700; text-align:center;">
+            <h2 style="color:white; margin:0;">💎 PREMIUM</h2>
+            <p style="color:#ffd700; margin:0; font-weight:bold;">Accès Illimité + Exports Excel</p>
+        </div>
+        """, unsafe_allow_html=True)
+    st.sidebar.success("✅ Identité vérifiée : Bienvenue Mathias.")
+
 elif user_code == CODE_PRO:
     status = "Pro"
-    st.sidebar.info("✅ COMPTE PRO ACTIVÉ")
+    st.sidebar.markdown("""
+        <div style="background-color:#2e7d32; padding:15px; border-radius:10px; text-align:center;">
+            <h2 style="color:white; margin:0;">✅ VERSION PRO</h2>
+            <p style="color:#e8f5e9; margin:0;">Analyses Illimitées activées</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-# Liens Business
-if status != "Premium":
+else:
+    status = "Gratuit"
+    st.sidebar.markdown("""
+        <div style="background-color:#f5f5f5; padding:15px; border-radius:10px; border:1px solid #ccc; text-align:center;">
+            <h2 style="color:#333; margin:0;">⚪ GRATUIT</h2>
+            <p style="color:#666; margin:0;">Version de démonstration</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
     st.sidebar.markdown("---")
-    st.sidebar.write("⭐ **Passer à la vitesse supérieure**")
-    st.sidebar.markdown("[👉 Version PRO (5€)](https://buy.stripe.com/aFafZg6mq35D9re8xncZa00)")
-    st.sidebar.markdown("[🚀 Version PREMIUM (15€)](https://buy.stripe.com/7sY6oG3aegWtgTGeVLcZa01)")
+    st.sidebar.write("🚀 **Débloquer la puissance :**")
+    st.sidebar.markdown(f"[👉 Passer à 5€ (Pro)](https://buy.stripe.com/aFafZg6mq35D9re8xncZa00)")
+    st.sidebar.markdown(f"[💎 Passer à 15€ (Premium)](https://buy.stripe.com/7sY6oG3aegWtgTGeVLcZa01)")
 
 # 4. INTERFACE PRINCIPALE
 st.title("🚀 Strategist AI Pro")
@@ -110,3 +129,4 @@ if st.session_state['analyse_result']:
 # 6. BAS DE PAGE
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"[⚙️ Gérer mon abonnement](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
+
