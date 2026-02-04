@@ -13,156 +13,133 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 if 'analyse_result' not in st.session_state:
     st.session_state['analyse_result'] = None
 
-# Codes Railway
 CODE_PRO = os.getenv("APP_ACCESS_CODE", "palaiseau2026")
 CODE_PREMIUM = os.getenv("APP_PREMIUM_CODE", "palaiseau-pro")
 
-# 2. FONCTION PDF QUALI (COULEURS ET STRUCTURE)
+# 2. FONCTION PDF (MISE EN PAGE RÉPARÉE)
 def create_pdf(data):
     try:
         pdf = FPDF()
         pdf.add_page()
         
-        # En-tête avec couleur
-        pdf.set_fill_color(31, 73, 125) # Bleu marine pro
+        # En-tête Premium
+        pdf.set_fill_color(31, 73, 125)
         pdf.rect(0, 0, 210, 40, 'F')
         pdf.set_text_color(255, 255, 255)
-        pdf.set_font("Arial", 'B', size=24)
-        pdf.cell(190, 30, txt="RAPPORT STRATÉGIQUE", ln=True, align='C')
+        pdf.set_font("Arial", 'B', size=22)
+        pdf.cell(190, 30, txt="RAPPORT STRATÉGIQUE PROFESSIONNEL", ln=True, align='C')
         
-        # Retour au noir pour le contenu
         pdf.set_text_color(0, 0, 0)
         pdf.ln(20)
         
-        # Fonction pour nettoyer le texte (enlève les résidus de JSON)
         def clean(text):
-            t = str(text).replace('{', '').replace('}', '').replace("'", "").replace("[", "").replace("]", "")
-            return t.encode('latin-1', 'replace').decode('latin-1')
+            return str(text).encode('latin-1', 'replace').decode('latin-1')
 
-        # SECTION SYNTHÈSE
+        # I. SYNTHÈSE
         pdf.set_font("Arial", 'B', size=14)
         pdf.set_text_color(31, 73, 125)
         pdf.cell(190, 10, txt="I. SYNTHÈSE EXÉCUTIVE", ln=True)
-        pdf.set_draw_color(31, 73, 125)
-        pdf.line(10, pdf.get_y(), 60, pdf.get_y())
-        pdf.ln(5)
-        
+        pdf.ln(2)
         pdf.set_text_color(0, 0, 0)
         pdf.set_font("Arial", size=11)
-        synth = data.get('synthese', 'Analyse en cours...')
-        pdf.multi_cell(190, 7, txt=clean(synth))
+        pdf.multi_cell(190, 7, txt=clean(data.get('synthese', 'N/A')))
         
-        # SECTION PLAN D'ACTION
+        # II. PLAN D'ACTION (REFAIT)
         pdf.ln(10)
         pdf.set_font("Arial", 'B', size=14)
         pdf.set_text_color(31, 73, 125)
         pdf.cell(190, 10, txt="II. PLAN D'ACTION OPÉRATIONNEL", ln=True)
-        pdf.line(10, pdf.get_y(), 85, pdf.get_y())
-        pdf.ln(5)
+        pdf.ln(2)
         
         pdf.set_text_color(0, 0, 0)
-        pdf.set_font("Arial", size=10)
         actions = data.get('actions', [])
         for act in actions:
-            if isinstance(act, dict):
-                title = act.get('Action', 'Action')
-                detail = f"Responsable: {act.get('Responsable', 'N/A')} | Délai: {act.get('Delai', 'N/A')}"
-                pdf.set_font("Arial", 'B', size=10)
-                pdf.multi_cell(190, 6, txt=f"> {clean(title)}")
-                pdf.set_font("Arial", 'I', size=9)
-                pdf.multi_cell(190, 5, txt=f"  {clean(detail)}")
-                pdf.ln(2)
-        
-        # RECOMMANDATIONS
-        pdf.ln(5)
-        pdf.set_font("Arial", 'B', size=14)
-        pdf.set_text_color(31, 73, 125)
-        pdf.cell(190, 10, txt="III. RECOMMANDATIONS & VIGILANCE", ln=True)
-        pdf.line(10, pdf.get_y(), 90, pdf.get_y())
-        pdf.ln(5)
-        
-        pdf.set_text_color(0, 0, 0)
-        pdf.set_font("Arial", size=11)
-        recos = data.get('recommandation', 'N/A')
-        pdf.multi_cell(190, 7, txt=clean(recos))
-
+            pdf.set_font("Arial", 'B', size=11)
+            # On récupère les infos avec des valeurs par défaut pour éviter le vide
+            desc = act.get('Action', act.get('action', 'Action sans titre'))
+            resp = act.get('Responsable', act.get('responsable', 'Non assigné'))
+            delai = act.get('Delai', act.get('date', 'À définir'))
+            
+            pdf.multi_cell(190, 7, txt=f"• {clean(desc)}")
+            pdf.set_font("Arial", 'I', size=10)
+            pdf.cell(190, 6, txt=f"  Responsable: {clean(resp)} | Délai: {clean(delai)}", ln=True)
+            pdf.ln(2)
+            
         return bytes(pdf.output())
     except Exception as e:
         st.error(f"Erreur PDF : {e}")
         return None
 
-# (Garder create_excel identique car tu as dit qu'il était bon)
+# 3. FONCTION EXCEL (COMPLÈTE)
 def create_excel(actions_list):
     output = io.BytesIO()
-    df = pd.DataFrame(actions_list)
+    # On force la conversion en DataFrame et on remplit les vides par "N/A"
+    df = pd.DataFrame(actions_list).fillna("À préciser")
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Plan d Action')
     return output.getvalue()
 
-# 3. INTERFACE (SIDEBAR ET LIENS STRIPE)
+# 4. SIDEBAR (FIX MESSAGE PREMIUM)
 st.sidebar.title("🔐 Accès Strategist AI")
-user_code = st.sidebar.text_input("Code d'accès :", type="password")
+user_code = st.sidebar.text_input("Entre ton code d'accès :", type="password")
 
 status = "Gratuit"
-if user_code == CODE_PREMIUM: status = "Premium"
-elif user_code == CODE_PRO: status = "Pro"
+if user_code == CODE_PREMIUM:
+    status = "Premium"
+    st.sidebar.success("💎 COMPTE PREMIUM : TOUTES FONCTIONS OK")
+elif user_code == CODE_PRO:
+    status = "Pro"
+    st.sidebar.info("✅ COMPTE PRO : ANALYSE ILLIMITÉE")
+else:
+    st.sidebar.warning("Mode Gratuit : Limité")
 
-# Liens d'abonnement toujours visibles si non Premium
-if status != "Premium":
-    st.sidebar.markdown("---")
-    st.sidebar.write("⭐ **Améliorer mon compte**")
-    st.sidebar.markdown("[👉 Passer à 5€ (Pro)](https://buy.stripe.com/aFafZg6mq35D9re8xncZa00)")
-    st.sidebar.markdown("[🚀 Passer à 15€ (Premium)](https://buy.stripe.com/7sY6oG3aegWtgTGeVLcZa01)")
-
-# 4. LOGIQUE PRINCIPALE
+# 5. LOGIQUE PRINCIPALE
 st.title("🚀 Strategist AI Pro")
 user_input = st.text_area("Colle ta transcription ici :", height=250)
 
 if st.button("Lancer l'Analyse Stratégique"):
     if user_input:
-        # Prompt Ultra-Précis pour éviter le JSON brut dans le texte
-        sys_prompt = (
-            "Tu es un consultant expert. Produis un JSON pur. "
-            "IMPORTANT : La valeur de 'synthese' et 'recommandation' doit être du texte rédigé proprement, "
-            "sans accolades, sans listes techniques. 'actions' doit être une liste d'objets."
+        # Prompt corrigé pour l'IA
+        prompt = (
+            "Tu es un expert en stratégie. Analyse ce texte et fournis un JSON avec : "
+            "1) 'synthese': un texte rédigé. "
+            "2) 'actions': une liste d'objets avec 'Action', 'Responsable', 'Delai', 'KPI'. "
+            "Remplis TOUTES les cases pour chaque action, ne laisse rien de vide."
         )
         
         with st.spinner("Analyse en cours..."):
             try:
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
-                    messages=[
-                        {"role": "system", "content": sys_prompt},
-                        {"role": "user", "content": user_input}
-                    ],
+                    messages=[{"role": "system", "content": prompt}, {"role": "user", "content": user_input}],
                     temperature=0
                 )
                 raw = response.choices[0].message.content.strip()
                 if "```json" in raw: raw = raw.split("```json")[1].split("```")[0].strip()
                 st.session_state['analyse_result'] = json.loads(raw)
             except Exception as e:
-                st.error("Erreur de format IA. Réessaie.")
+                st.error("Erreur de format. Réessaie.")
 
-# 5. AFFICHAGE
+# 6. AFFICHAGE ET EXPORTS
 if st.session_state['analyse_result']:
     res = st.session_state['analyse_result']
     st.divider()
     
-    col_res, col_dl = st.columns([3, 1])
-    with col_res:
-        st.subheader("📝 Synthèse")
-        st.write(res.get('synthese'))
+    st.subheader("📝 Synthèse")
+    st.write(res.get('synthese'))
     
     if status == "Premium":
-        with col_dl:
-            st.write("### 📥 Exports")
-            pdf_b = create_pdf(res)
-            st.download_button("📕 Rapport PDF Pro", pdf_b, "Rapport_Strategique.pdf", "application/pdf")
-            st.download_button("📗 Tableau Excel", create_excel(res.get('actions', [])), "Plan_Action.xlsx")
+        st.subheader("📊 Plan d'Action & Exports")
+        st.table(pd.DataFrame(res.get('actions', [])).fillna("-"))
+        
+        c1, c2 = st.columns(2)
+        with c1:
+            st.download_button("📕 Rapport PDF Premium", create_pdf(res), "Rapport_Strategique.pdf", "application/pdf")
+        with c2:
+            st.download_button("📗 Tableau Excel Complet", create_excel(res.get('actions', [])), "Plan_Action.xlsx")
     else:
-        with col_dl:
-            st.info("Exports réservés aux membres Premium.")
-            st.markdown("[🚀 Passer Premium](https://buy.stripe.com/7sY6oG3aegWtgTGeVLcZa01)")
+        st.info("Exports PDF/Excel réservés au Premium.")
+        st.markdown("[🚀 Passer Premium](https://buy.stripe.com/7sY6oG3aegWtgTGeVLcZa01)")
 
 st.sidebar.markdown("---")
-st.sidebar.markdown(f"[⚙️ Gérer mon abonnement](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
+st.sidebar.markdown(f"[⚙️ Gérer l'abonnement](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
