@@ -7,6 +7,7 @@ import io
 import os
 from sqlalchemy import create_engine
 
+
 # Connexion à la base de données
 db_url = os.getenv("DATABASE_URL")
 if db_url and db_url.startswith("postgres://"):
@@ -153,6 +154,7 @@ if st.session_state['analyse_result']:
 # 6. BAS DE PAGE
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"[⚙️ Gérer mon abonnement](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
+
 
 
 
