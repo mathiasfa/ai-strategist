@@ -3,3 +3,5 @@ openai==0.28
 fpdf2
 pandas
 openpyxl
+psycopg2-binary
+sqlalchemy
