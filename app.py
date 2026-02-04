@@ -4,6 +4,8 @@ import os
 import json
 import pandas as pd
 import io
+import os
+from sqlalchemy import create_engine
 
 # 1. CONFIGURATION
 st.set_page_config(page_title="Strategist AI Pro", page_icon="🚀", layout="wide")
@@ -129,4 +131,5 @@ if st.session_state['analyse_result']:
 # 6. BAS DE PAGE
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"[⚙️ Gérer mon abonnement](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
+
 
