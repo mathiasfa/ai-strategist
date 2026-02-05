@@ -4,16 +4,6 @@ import os
 import json
 import pandas as pd
 import io
-import os
-from sqlalchemy import create_engine
-
-
-# Connexion à la base de données
-db_url = os.getenv("DATABASE_URL")
-if db_url and db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql://", 1)
-
-engine = create_engine(db_url)
 
 # 1. CONFIGURATION
 st.set_page_config(page_title="Strategist AI Pro", page_icon="🚀", layout="wide")
@@ -107,21 +97,6 @@ if st.button("Lancer l'Analyse Stratégique", key="main_btn"):
                 raw = response.choices[0].message.content.strip()
                 if "```json" in raw: raw = raw.split("```json")[1].split("```")[0].strip()
                 st.session_state['analyse_result'] = json.loads(raw)
-                try:
-    with engine.connect() as conn:
-        insert_query = text("""
-            INSERT INTO rapports (code_acces, input_transcription, resultat_json) 
-            VALUES (:code, :input, :result)
-        """)
-        conn.execute(insert_query, {
-            "code": user_code if user_code else "Gratuit",
-            "input": user_input,
-            "result": raw # On stocke le JSON brut
-        })
-        conn.commit()
-except Exception as e:
-    st.error(f"Erreur technique (DB) : {e}")
-                
             except Exception as e:
                 st.error("Désolé, l'IA a eu un problème de format. Réessaie avec un texte plus court ou plus clair.")
 
