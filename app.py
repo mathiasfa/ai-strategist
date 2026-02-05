@@ -4,7 +4,7 @@ import os
 import json
 import pandas as pd
 import io
-from PyPDF2 import PdfReader # Nouvelle bibliothèque pour lire les PDF
+from PyPDF2 import PdfReader
 
 # 1. CONFIGURATION
 st.set_page_config(page_title="Strategist AI Pro", page_icon="🚀", layout="wide")
@@ -16,7 +16,7 @@ if 'analyse_result' not in st.session_state:
 CODE_PRO = os.getenv("APP_ACCESS_CODE", "palaiseau2026")
 CODE_PREMIUM = os.getenv("APP_PREMIUM_CODE", "palaiseau-pro")
 
-# 2. FONCTIONS (EXCEL & PDF)
+# 2. FONCTIONS
 def create_excel(actions_list):
     output = io.BytesIO()
     df = pd.DataFrame(actions_list)
@@ -28,18 +28,19 @@ def create_excel(actions_list):
     return output.getvalue()
 
 def extract_text_from_pdf(pdf_file):
-    """Extrait le texte de chaque page du PDF."""
     try:
         reader = PdfReader(pdf_file)
         text = ""
         for page in reader.pages:
-            text += page.extract_text() + "\n"
+            content = page.extract_text()
+            if content:
+                text += content + "\n"
         return text
     except Exception as e:
-        st.error(f"Erreur lors de la lecture du PDF : {e}")
+        st.error(f"Erreur lecture PDF : {e}")
         return None
 
-# 3. SIDEBAR (MANAGEMENT VISUEL)
+# 3. SIDEBAR & LIENS STRIPE (RÉTABLIS)
 st.sidebar.title("🔐 Accès Strategist AI")
 user_code = st.sidebar.text_input("Entre ton code d'accès :", type="password", key="access_pwd")
 
@@ -53,73 +54,77 @@ elif user_code == CODE_PRO:
 else:
     status = "Gratuit"
     st.sidebar.info("Version de démonstration")
+    st.sidebar.markdown("---")
+    st.sidebar.write("🚀 **Débloquer la puissance :**")
+    st.sidebar.markdown("[👉 Passer à 5€ (Pro)](https://buy.stripe.com/aFafZg6mq35D9re8xncZa00)")
+    st.sidebar.markdown("[💎 Passer à 15€ (Premium)](https://buy.stripe.com/7sY6oG3aegWtgTGeVLcZa01)")
 
 # 4. INTERFACE PRINCIPALE
 st.title("🚀 Strategist AI Pro")
 st.markdown("---")
 
-# Zone de Glisser-Déposer PDF
-st.subheader("📁 Étape 1 : Charger le document")
-uploaded_file = st.file_uploader("Glisse ton compte-rendu PDF ici (Audit, Réunion, QSE...)", type="pdf")
+uploaded_file = st.file_uploader("📁 Dépose ton rapport PDF QSE ici", type="pdf")
+manual_input = st.text_area("⌨️ Ou colle le texte ici :", height=150)
 
-# Zone de texte (optionnelle)
-st.subheader("⌨️ Ou colle le texte manuellement")
-manual_input = st.text_area("Si tu n'as pas de PDF :", height=150, placeholder="Ex: Compte-rendu d'audit à Palaiseau...")
-
-# Bouton de lancement
 if st.button("Lancer l'Analyse Stratégique", key="main_btn"):
-    content_to_analyze = ""
-    
-    # Priorité au PDF s'il existe
-    if uploaded_file is not None:
-        with st.spinner("Extraction du texte du PDF..."):
-            content_to_analyze = extract_text_from_pdf(uploaded_file)
+    content = ""
+    if uploaded_file:
+        content = extract_text_from_pdf(uploaded_file)
     elif manual_input:
-        content_to_analyze = manual_input
-    
-    if not content_to_analyze:
-        st.warning("Veuillez charger un PDF ou coller du texte.")
+        content = manual_input
+
+    if not content or len(content.strip()) < 10:
+        st.warning("Document vide ou illisible.")
     else:
+        # PROMPT RENFORCÉ POUR LE TABLEAU
         prompt = (
-            "Tu es un expert en stratégie QSE. Analyse ce texte et fournis un JSON pur avec : "
-            "1) 'synthese': un beau résumé structuré. "
-            "2) 'actions': une liste d'objets avec 'Action', 'Responsable', 'Delai', 'Priorite', 'KPI', 'Statut'. "
-            "3) 'recommandations': points de vigilance. "
-            "Sois précis sur les délais et responsables mentionnés."
+            "Tu es un expert en stratégie. Analyse le texte fourni. "
+            "Réponds UNIQUEMENT avec un objet JSON structuré comme ceci : "
+            "{"
+            "  'synthese': 'résumé détaillé',"
+            "  'actions': [{'Action': '...', 'Responsable': '...', 'Delai': '...', 'Priorite': '...', 'KPI': '...', 'Statut': '...'}],"
+            "  'recommandations': 'conseils'"
+            "}"
+            "IMPORTANT : Ne laisse pas la liste 'actions' vide. Extrais la majorité des actions concrètes qui resortent du texte."
         )
         
-        with st.spinner("Analyse experte du document en cours..."):
+        with st.spinner("Analyse en cours..."):
             try:
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
-                    messages=[{"role": "system", "content": prompt}, {"role": "user", "content": content_to_analyze}],
-                    temperature=0
+                    messages=[{"role": "system", "content": prompt}, {"role": "user", "content": content}],
+                    temperature=0.2 # Un peu de créativité pour ne pas rater d'actions
                 )
                 raw = response.choices[0].message.content.strip()
                 if "```json" in raw: raw = raw.split("```json")[1].split("```")[0].strip()
-                st.session_state['analyse_result'] = json.loads(raw)
+                
+                parsed = json.loads(raw)
+                st.session_state['analyse_result'] = parsed
                 st.success("Analyse terminée !")
             except Exception as e:
-                st.error("L'IA a eu un souci avec le contenu du PDF. Vérifie que le PDF contient bien du texte (pas seulement des images).")
+                st.error(f"Erreur d'analyse : {e}")
 
 # 5. AFFICHAGE DES RÉSULTATS
 if st.session_state['analyse_result']:
     res = st.session_state['analyse_result']
     
-    with st.expander("📝 SYNTHÈSE EXÉCUTIVE", expanded=True):
-        st.write(res.get('synthese'))
+    with st.expander("📝 SYNTHÈSE", expanded=True):
+        st.write(res.get('synthese', 'Pas de synthèse disponible.'))
     
     with st.expander("📊 PLAN D'ACTION DÉTAILLÉ", expanded=True):
-        actions = res.get('actions', [])
-        st.dataframe(pd.DataFrame(actions).fillna("-"), use_container_width=True)
-        
-        if status == "Premium":
-            st.download_button(
-                label="📥 Télécharger le Plan d'Action (Excel)",
-                data=create_excel(actions),
-                file_name="Plan_Action_StrategistAI.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+        actions_data = res.get('actions', [])
+        if actions_data:
+            df = pd.DataFrame(actions_data).fillna("-")
+            st.dataframe(df, use_container_width=True)
+            
+            if status == "Premium":
+                st.download_button("📥 Télécharger l'Excel", data=create_excel(actions_data), file_name="Plan_Action.xlsx")
+        else:
+            st.warning("L'IA n'a pas trouvé d'actions précises dans ce document.")
 
     with st.expander("💡 RECOMMANDATIONS", expanded=True):
-        st.write(res.get('recommandations'))
+        st.write(res.get('recommandations', 'N/A'))
+
+# 6. BAS DE PAGE (LIEN GESTION RÉTABLI)
+st.sidebar.markdown("---")
+st.sidebar.markdown("[⚙️ Gérer mon abonnement](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
