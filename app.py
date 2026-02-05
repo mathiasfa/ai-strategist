@@ -78,20 +78,22 @@ if st.button("Lancer l'Analyse Stratégique", key="main_btn"):
     else:
         # PROMPT RENFORCÉ POUR LE TABLEAU
         prompt = (
-            "Tu es un expert en stratégie. Analyse le texte fourni. "
-            "Réponds UNIQUEMENT avec un objet JSON structuré comme ceci : "
-            "{"
-            "  'synthese': 'résumé détaillé',"
-            "  'actions': [{'Action': '...', 'Responsable': '...', 'Delai': '...', 'Priorite': '...', 'KPI': '...', 'Statut': '...'}],"
-            "  'recommandations': 'conseils'"
-            "}"
-            "IMPORTANT : Ne laisse pas la liste 'actions' vide. Extrais la majorité des actions concrètes qui resortent du texte."
+           "Tu es un expert consultant en QSE et stratégie d'entreprise. Ton objectif est d'extraire une analyse EXHAUSTIVE du texte fourni.\n\n"
+            "INSTRUCTIONS CRUCIALES :\n"
+            "1. NE RÉSUME PAS grossièrement. Analyse chaque paragraphe.\n"
+            "2. EXTRAIS TOUTES les actions correctives, les décisions prises et les missions évoquées.\n"
+            "3. Si un responsable ou une date est mentionné, note-le. Sinon, mets 'À définir'.\n"
+            "4. Structure ta réponse en JSON PUR avec :\n"
+            "   - 'synthese': Un compte-rendu détaillé structuré par thématiques (ex: Sécurité, Environnement, Planning).\n"
+            "   - 'actions': Une liste complète d'objets (Action, Responsable, Delai, Priorite, KPI, Statut).\n"
+            "   - 'recommandations': Une analyse approfondie des risques et des opportunités.\n\n"
+            "REMPLIS LE TABLEAU D'ACTIONS AVEC TOUS LES POINTS RELEVÉS, SANS EXCEPTION."
         )
         
         with st.spinner("Analyse en cours..."):
             try:
                 response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
+                    model="gpt-4o-mini",
                     messages=[{"role": "system", "content": prompt}, {"role": "user", "content": content}],
                     temperature=0.2 # Un peu de créativité pour ne pas rater d'actions
                 )
@@ -128,3 +130,4 @@ if st.session_state['analyse_result']:
 # 6. BAS DE PAGE (LIEN GESTION RÉTABLI)
 st.sidebar.markdown("---")
 st.sidebar.markdown("[⚙️ Gérer mon abonnement](https://billing.stripe.com/p/login/aFafZg6mq35D9re8xncZa00)")
+
